@@ -19,3 +19,7 @@ def pretrained_resnet_18():
     model_ft.load_state_dict(model_ft_dict)
     
     return model_ft
+
+# TODO: Sean -- add method to pull in pretrained mixmo classifier
+
+# TODO: Sean -- add method to pull in pretrained congruency classifier
