@@ -8,7 +8,6 @@ def pretrained_resnet_18():
     model_ft.conv1 = nn.Conv2d(3,64, kernel_size=(3,3), stride=(1,1), padding=(1,1), bias=False)
     model_ft.maxpool = nn.Sequential()
     model_ft.avgpool = nn.AdaptiveAvgPool2d(1)
-    model_ft.fc.out_features = 200
 
     # Loading weights from pretrained model
     pretrained_dict = torch.load('checkpoints/resnet18-f37072fd.pth')
@@ -18,6 +17,8 @@ def pretrained_resnet_18():
     model_ft_dict.update(pretrained_dict) 
     model_ft.load_state_dict(model_ft_dict)
     
+    model_ft.fc = nn.Linear(512,200)
+
     return model_ft
 
 # TODO: Sean -- add method to pull in pretrained mixmo classifier
