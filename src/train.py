@@ -4,6 +4,7 @@ import os
 
 import torch
 import torch.optim as optim
+from torch.utils.tensorboard import SummaryWriter
 
 import sys
 sys.path.append("../")
@@ -32,7 +33,10 @@ if __name__ == '__main__':
     dest = os.path.join(*dest)
     if not os.path.isdir(dest):
         os.makedirs(dest)
-        
+    
+    #Tensorboard
+    writer = SummaryWriter()
+
     # load generator andd classifier
     gen_arch = gen.BaseGenerator
     if args.gen == 1:
@@ -85,6 +89,8 @@ if __name__ == '__main__':
             loss = loss_fn(inputs, outputs, preds, targets, args.beta)
             loss.backward()
             optimizer.step()
+
+            writer.add_scalar("Loss/train", loss.item(), epoch)
 
             # print statistics
             running_loss += loss.item()
