@@ -4,7 +4,7 @@ import torch
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 
-def get_loader(which_loader, batch = 100, data_dir = "Imagenet"):
+def get_loader(which_loader, batch = 100, data_dir = "../Imagenet"):
     
     data_transforms = {
     'train': transforms.Compose([
@@ -26,7 +26,7 @@ def get_loader(which_loader, batch = 100, data_dir = "Imagenet"):
     #     'val'   : 0,
     #     'test'  : 0
     # }
-    image_datasets = {x: datasets.ImageFolder(os.path.join("..",data_dir, x),
+    image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x),
                                           data_transforms[x])
                         for x in ['train', 'val','test']}
     dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=batch,

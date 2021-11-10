@@ -17,8 +17,8 @@ if __name__ == '__main__':
     # parse input args
     parser = argparse.ArgumentParser()
     parser.add_argument('-gen', type=int, default=0) # 0 for BaseGenerator, 1 for ResidualGenerator, 2 for MultiResidualGenerator
-    parser.add_argument('-epochs', type=int, default=10) # TODO: find good default
-    parser.add_argument('-save', type=int, default=5) # TODO: maybe instead rely on # of epochs?
+    parser.add_argument('-epochs', type=int, default=3) # TODO: find good default
+    parser.add_argument('-save', type=int, default=1) # TODO: maybe instead rely on # of epochs?
     parser.add_argument('-dest', type=str, default="/runs/"+str(datetime.date.today()))
     parser.add_argument('-batch', type=int, default=64)
     parser.add_argument('-lr', type=float, default=0.001) # TODO: search over space of hyperparameters
@@ -71,6 +71,10 @@ if __name__ == '__main__':
         running_loss = 0.0
         for i, data in enumerate(trainloader, 0):
             
+            if verbose:
+                print('epoch ' + str(epoch) + ', batch ' + str(i))
+
+
             inputs, targets = data # will we have targets from the loader?
                                 # maybe start with a single target, e.g. 'gorilla'
             targets = torch.zeros(200)
