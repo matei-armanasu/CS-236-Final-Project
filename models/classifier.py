@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 import torchvision.models as models
+from efficientnet_pytorch import EfficientNet
+
 
 def pretrained_resnet_18():
     model_ft = models.resnet18()
@@ -21,6 +23,6 @@ def pretrained_resnet_18():
 
     return model_ft
 
-# TODO: Sean -- add method to pull in pretrained mixmo classifier
-
-# TODO: Sean -- add method to pull in pretrained congruency classifier
+def pretrained_efficient_net():
+    model = EfficientNet.from_pretrained('efficientnet-b1', num_classes=200)
+    return model
