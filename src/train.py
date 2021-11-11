@@ -140,6 +140,6 @@ if __name__ == '__main__':
         print("Fraction classified pre-attack: " + str(acc))
 
     # save final model
-    run_name = run_name_base + str(args.epoch) + "-FINAL.tar"
+    run_name = run_name_base + str(args.epochs) + "-FINAL.tar"
     torch.save(generator, run_name)
     print('Finished Training')
