@@ -29,6 +29,8 @@ MANIFEST
 
 # macos
 .DS_Store
+*.tar
+slurm*
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
