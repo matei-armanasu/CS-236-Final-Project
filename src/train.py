@@ -28,7 +28,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    verbose = True if args.verbose > 0 else False
+    verbose = args.verbose
     dest = args.dest.split("/")
     dest = os.path.join(*dest)
     if not os.path.isdir(dest):
@@ -46,15 +46,15 @@ if __name__ == '__main__':
         
     run_name_base = gen_arch.__name__ + "-" + str(args.epochs) + "-" # when saving finish with the current epoch
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    if verbose:
+    if verbose > 0:
         print("Using device: {}".format(device))
 
     generator = gen_arch().to(device)
-    if verbose:
+    if verbose > 0:
         print(generator)
         
     classifier = clas.pretrained_efficient_net().to(device)
-    if verbose:
+    if verbose > 0:
         print(classifier)
 
 
@@ -71,7 +71,7 @@ if __name__ == '__main__':
         running_loss = 0.0
         for i, data in enumerate(trainloader, 0):
             
-            if verbose:
+            if verbose > 0:
                 print('epoch ' + str(epoch) + ', batch ' + str(i))
 
 
@@ -86,13 +86,25 @@ if __name__ == '__main__':
             # zero the parameter gradients
             optimizer.zero_grad()
 
+            if verbose > 1:
+                print("data loaded")
             # forward + backward + optimize
             outputs = generator(inputs)
+
+            if verbose > 1:
+                print("images generated")
+
             preds = classifier(outputs)
             
+            if verbose > 1:
+                print("images classified")
+
             loss = loss_fn(inputs, outputs, preds, targets, args.beta)
             loss.backward()
             optimizer.step()
+
+            if verbose > 1:
+                print("backprop completed")
 
             writer.add_scalar("Loss/train", loss.item(), epoch)
 
@@ -100,7 +112,7 @@ if __name__ == '__main__':
             running_loss += loss.item()
             if i % 50 == 49:    # print every 50 mini-batches
                 print('[%d, %5d] loss: %.3f' %
-                    (epoch + 1, i + 1, running_loss / 2000))
+                    (epoch + 1, i + 1, running_loss / 50))
                 running_loss = 0.0
         
         if epoch % args.save == 0: # save generator model
