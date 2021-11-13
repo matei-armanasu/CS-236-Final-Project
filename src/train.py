@@ -49,7 +49,11 @@ if __name__ == '__main__':
     if verbose > 0:
         print("Using device: {}".format(device))
 
-    generator = gen_arch().to(device)
+    generator = None
+    if args.gen == 0:
+        gen_arch = gen_arch().to(device)
+    else: # need to provide initialization for resWeight
+        generator = gen_arch(.01).to(device)
     if verbose > 0:
         print(generator)
         
@@ -122,7 +126,7 @@ if __name__ == '__main__':
 
     # do final evaluation (possibly abstract this to a method?)
     testloader = dataloader.get_loader("test", args.batch)
-    correct_fl = 0
+    correct_adv = 0
     correct =  0
     total = 0
 
@@ -138,17 +142,17 @@ if __name__ == '__main__':
             inputs = inputs.to(device)
             
             outputs = generator(inputs)
-            preds_fl = classifier(outputs)
+            preds_adv = classifier(outputs)
             preds = classifier(inputs)
-            pred_classes_fl = torch.argmax(preds_fl, dim=1) # TODO: ensure this is shaped like inputs.shape[0]
+            pred_classes_adv = torch.argmax(preds_adv, dim=1) # TODO: ensure this is shaped like inputs.shape[0]
             pred_classes = torch.argmax(preds, dim=1) # TODO: ensure this is shaped like inputs.shape[0]
             
-            correct_fl += pred_classes_fl[pred_classes_fl==target_class].size()[0]
+            correct_adv += pred_classes_adv[pred_classes_adv==target_class].size()[0]
             correct += pred_classes[pred_classes==target_class].size()[0]
             
-        acc_fl = float(correct_fl)/float(total)
+        acc_adv = float(correct_adv)/float(total)
         acc = float(correct)/float(total)
-        print("Final fooling accuracy: " + str(acc_fl))
+        print("Final adversarial accuracy: " + str(acc_adv))
         print("Fraction classified pre-attack: " + str(acc))
 
     # save final model
