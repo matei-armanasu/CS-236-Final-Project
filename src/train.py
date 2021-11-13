@@ -44,7 +44,7 @@ if __name__ == '__main__':
     elif args.gen == 2:
         gen_arch = gen.MultiResidualGenerator
         
-    run_name_base = gen_arch.__name__ + "-" + str(args.epochs) + "-" # when saving finish with the current epoch
+    run_name_base = dest + gen_arch.__name__ + "-" + str(args.epochs) + "-" # when saving finish with the current epoch
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     if verbose > 0:
         print("Using device: {}".format(device))
