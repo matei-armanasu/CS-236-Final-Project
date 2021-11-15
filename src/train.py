@@ -13,6 +13,8 @@ import models.classifier as clas
 import utils.loss as loss
 import utils.dataloader as dataloader
 
+from eval import evaluate
+
 if __name__ == '__main__':
     # parse input args
     parser = argparse.ArgumentParser()
@@ -24,7 +26,8 @@ if __name__ == '__main__':
     parser.add_argument('-lr', type=float, default=0.001) # TODO: search over space of hyperparameters
     parser.add_argument('-beta', type=float, default=0.0001) # TODO: search over space of hyperparameters
     parser.add_argument('--verbose', action='count', default=0) #TODO: implement verbose output
-    # TODO: add argument parsing to allow for loading generator from a model
+    parser.add_argument('-checkpoint', type=str, default=None)
+    parser.add_argument('-eval', type=bool, default=True)
 
     args = parser.parse_args()
 
@@ -51,9 +54,15 @@ if __name__ == '__main__':
 
     generator = None
     if args.gen == 0:
-        gen_arch = gen_arch().to(device)
+        gen_arch = gen_arch()
     else: # need to provide initialization for resWeight
-        generator = gen_arch(.01).to(device)
+        generator = gen_arch(.01)
+        
+    if args.checkpoint != None:
+        gen_state_dict = torch.load(args.checkpoint)
+        generator.load_state_dict(gen_state_dict)
+        
+    generator = generator.to(device)
     if verbose > 0:
         print(generator)
         
@@ -124,38 +133,11 @@ if __name__ == '__main__':
             torch.save(generator, run_name)
 
 
-    # do final evaluation (possibly abstract this to a method?)
-    testloader = dataloader.get_loader("test", args.batch)
-    correct_adv = 0
-    correct =  0
-    total = 0
-
-    with torch.no_grad():
-        for i, data in enumerate(testloader, 0):
-            
-            inputs, targets = data
-            
-            total += inputs.shape[0] # sum up how many images  we use in testing
-            
-            target_class = 42 # TODO: ensure this stays in sync with train code
-            
-            inputs = inputs.to(device)
-            
-            outputs = generator(inputs)
-            preds_adv = classifier(outputs)
-            preds = classifier(inputs)
-            pred_classes_adv = torch.argmax(preds_adv, dim=1) # TODO: ensure this is shaped like inputs.shape[0]
-            pred_classes = torch.argmax(preds, dim=1) # TODO: ensure this is shaped like inputs.shape[0]
-            
-            correct_adv += pred_classes_adv[pred_classes_adv==target_class].size()[0]
-            correct += pred_classes[pred_classes==target_class].size()[0]
-            
-        acc_adv = float(correct_adv)/float(total)
-        acc = float(correct)/float(total)
-        print("Final adversarial accuracy: " + str(acc_adv))
-        print("Fraction classified pre-attack: " + str(acc))
-
     # save final model
     run_name = run_name_base + str(args.epochs) + "-FINAL.tar"
     torch.save(generator, run_name)
     print('Finished Training')
+    
+    # do final evaluation
+    if args.eval:
+        evaluate(args.gen, args.batch, args.verbose, run_name)
