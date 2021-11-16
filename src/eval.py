@@ -68,8 +68,12 @@ def evaluate(generator, batch, verbose, checkpoint):
             
             correct_adv += pred_classes_adv[pred_classes_adv==target_class].size()[0]
             correct += pred_classes[pred_classes==target_class].size()[0]
-            psnrs.append(psnr(inputs,outputs))
-            ssims.append(ssim(inputs,outputs,win_size=10, channel_axis=1))
+           
+
+            inputs = np.moveaxis(inputs.cpu().detach().numpy(),1,3)
+            outputs = np.moveaxis(outputs.cpu().detach().numpy(),1,3)
+            psnrs.append(psnr(inputs,outputs,data_range=2))
+            ssims.append(ssim(inputs,outputs,win_size=9, multichannel=True))
             
         acc_adv = float(correct_adv)/float(total)
         acc = float(correct)/float(total)

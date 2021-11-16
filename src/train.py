@@ -130,12 +130,12 @@ if __name__ == '__main__':
         
         if epoch % args.save == 0: # save generator model
             run_name = run_name_base + str(epoch) + "-checkpoint.tar"
-            torch.save(generator, run_name)
+            torch.save(generator.state_dict(), run_name)
 
 
     # save final model
     run_name = run_name_base + str(args.epochs) + "-FINAL.tar"
-    torch.save(generator, run_name)
+    torch.save(generator.state_dict(), run_name)
     print('Finished Training')
     
     # do final evaluation
