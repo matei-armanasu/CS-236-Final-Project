@@ -28,7 +28,7 @@ if __name__ == '__main__':
     parser.add_argument('--verbose', action='count', default=0) #TODO: implement verbose output
     parser.add_argument('-checkpoint', type=str, default=None)
     parser.add_argument('-eval', type=bool, default=True)
-    parser.add_argument('-noise-test', type=bool, default=False)
+    parser.add_argument('-noisetest', type=bool, default=False)
 
     args = parser.parse_args()
 
@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
     generator = None
     if args.gen == 0:
-        gen_arch = gen_arch()
+        generator = gen_arch()
     else: # need to provide initialization for resWeight
         generator = gen_arch(.01)
         
@@ -93,10 +93,10 @@ if __name__ == '__main__':
                                 # maybe start with a single target, e.g. 'gorilla'
             targets = torch.zeros(200)
             targets[42] = 1 # arbitrarily selected, TODO: make this variable
-            if args.noise-test:
-                inp-means = torch.zeros(args.batch,3,64,64)
-                inp-std = torch.ones(args.batch,3,64,64)
-                inputs = torch.normal(inp-means,inp-std)
+            if args.noisetest:
+                inp_means = torch.zeros(args.batch,3,64,64)
+                inp_std = torch.ones(args.batch,3,64,64)
+                inputs = torch.normal(inp_means,inp_std)
             targets = targets.to(device)
             
             inputs = inputs.to(device)
