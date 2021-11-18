@@ -12,14 +12,14 @@ import models.classifier as clas
 import utils.dataloader as dataloader
 
 
-def evaluate(generator, batch, verbose, checkpoint):
+def evaluate(generator_num, batch, verbose, checkpoint):
     verbose = verbose
 
     # load generator and classifier
     gen_arch = gen.BaseGenerator
-    if generator == 1:
+    if generator_num == 1:
         gen_arch = gen.ResidualGenerator
-    elif generator == 2:
+    elif generator_num == 2:
         gen_arch = gen.MultiResidualGenerator
         
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -27,8 +27,8 @@ def evaluate(generator, batch, verbose, checkpoint):
         print("Using device: {}".format(device))
 
     generator = None
-    if generator == 0:
-        gen_arch = gen_arch()
+    if generator_num == 0:
+        generator = gen_arch()
     else: # need to provide initialization for resWeight
         generator = gen_arch(.01)
     gen_state_dict = torch.load(checkpoint)
@@ -42,7 +42,7 @@ def evaluate(generator, batch, verbose, checkpoint):
         print(classifier)
 
     # do evaluation
-    testloader = dataloader.get_loader("test", args.batch)
+    testloader = dataloader.get_loader("test", batch)
     correct_adv = 0
     correct =  0
     total = 0

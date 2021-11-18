@@ -123,6 +123,7 @@ if __name__ == '__main__':
 
             if verbose > 1:
                 print("backprop completed")
+                print(loss.item())
 
             writer.add_scalar("Loss/train", loss.item(), epoch)
 
