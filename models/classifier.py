@@ -3,6 +3,50 @@ import torch.nn as nn
 import torchvision.models as models
 from efficientnet_pytorch import EfficientNet
 
+class BaseClassifier(nn.Module):
+    def __init__(self):
+        super(BaseClassifier, self).__init__()
+        self.c1 = nn.Conv2d(3, 32, 5, padding = 2, bias = False)
+        self.bn1 = nn.BatchNorm2d(32)
+        self.lr1 = nn.LeakyReLU()
+        
+        self.c2 = nn.Conv2d(32, 64, 5, padding = 0, bias = False) # down to 28x28
+        self.bn2 = nn.BatchNorm2d(64)
+        self.lr2 = nn.LeakyReLU()
+        
+        self.c3 = nn.Conv2d(64, 128, 5, padding = 0, bias = False) # down to 24x24
+        self.bn3 = nn.BatchNorm2d(128)
+        self.lr3 = nn.LeakyReLU()
+
+        self.c4 = nn.Conv2d(128, 128, 5, padding = 0, bias = False) # down to 20x20
+        self.bn4 = nn.BatchNorm2d(128)
+        self.lr4 = nn.LeakyReLU()
+
+        self.c5 = nn.Conv2d(128, 256, 5, padding = 0, bias = False) # down to 16x16
+        self.bn5 = nn.BatchNorm2d(256)
+        self.lr5 = nn.LeakyReLU()
+        
+        self.c_final = nn.Conv2d(256, 256, 5, padding = 0, bias = False) # down to 12x12
+        self.bn_final = nn.BatchNorm2d(256)
+        self.lr_final = nn.LeakyReLU()
+        
+        self.fc1 = nn.Linear(36864,1000)
+        self.activ1 = nn.LeakyReLU()
+        
+        self.fc2 = nn.Linear(1000,200) # final scores
+    
+    def forward(self, x):
+        x = self.lr1(self.bn1(self.c1(x)))
+        x = self.lr2(self.bn2(self.c2(x)))
+        x = self.lr3(self.bn3(self.c3(x)))
+        x = self.lr4(self.bn4(self.c4(x)))
+        x = self.lr5(self.bn5(self.c5(x)))
+        y = self.activ_final(self.bn_final(self.c_final(x)))
+        y = torch.flatten(y,1)
+        y = self.activ1(self.fc1(y))
+        scores = self.fc2(y)
+        
+        return scores
 
 def pretrained_resnet_18():
     model_ft = models.resnet18()
