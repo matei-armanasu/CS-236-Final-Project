@@ -67,7 +67,7 @@ if __name__ == '__main__':
     if verbose > 0:
         print(generator)
         
-    classifier = clas.pretrained_efficient_net().to(device)
+    classifier = clas.pretrained_base_classifier().to(device)
     if verbose > 0:
         print(classifier)
 
