@@ -71,3 +71,9 @@ def pretrained_resnet_18():
 def pretrained_efficient_net():
     model = EfficientNet.from_pretrained('efficientnet-b1', num_classes=200)
     return model
+
+def pretrained_base_classifier():
+    model_arch = BaseClassifier()
+    model_arch.load_state_dict(torch.load('../models/BaseClassifier-50-50-FINAL.tar'))
+    
+    return model_arch
