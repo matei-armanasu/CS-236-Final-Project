@@ -16,7 +16,7 @@ def fgsm_attack(image, epsilon, data_grad):
     # Collect the element-wise sign of the data gradient
     sign_data_grad = data_grad.sign()
     # Create the perturbed image by adjusting each pixel of the input image
-    perturbed_image = image + epsilon*sign_data_grad
+    perturbed_image = image - epsilon*sign_data_grad
     # Return the perturbed image
     return perturbed_image
 
@@ -39,51 +39,53 @@ def evaluate(epsilon, batch, verbose, checkpoint):
     psnrs = []
     ssims = []
 
-    with torch.no_grad():
-        for i, data in enumerate(testloader, 0):
-            
-            inputs, targets = data
-            
-            total += inputs.shape[0] # sum up how many images  we use in testing
-            
-            target_class = 42 
-            
-            inputs = inputs.to(device)
-            
-            inputs.requires_grad = True
-            
-            preds = classifier(inputs)
-            pred_classes = torch.argmax(preds, dim=1)
-            correct += pred_classes[pred_classes==target_class].size()[0]
+    for i, data in enumerate(testloader, 0):
+        
+        inputs, targets = data
+        
+        total += inputs.shape[0] # sum up how many images  we use in testing
+        
+        target_class = 42 
+        
+        inputs = inputs.to(device)
+        inputs.requires_grad = True
+        
+        preds = classifier(inputs)
+        pred_classes = torch.argmax(preds, dim=1)
+        correct += pred_classes[pred_classes==target_class].size()[0]
 
-            adv_target = F.one_hot(torch.ones(inputs.shape[0],dtype=int)*target_class, num_classes=200)
-            loss = F.nll_loss(preds, adv_target)
-            classifier.zero_grad()
-            loss.backward()
-            data_grad = data.grad.data
-            outputs = fgsm_attack(data, epsilon, data_grad)
-            preds_adv = classifier(outputs)
-            
-            pred_classes_adv = torch.argmax(preds_adv, dim=1) 
-            
-            
-            correct_adv += pred_classes_adv[pred_classes_adv==target_class].size()[0]
-            
-           
+        adv_target = torch.ones(inputs.shape[0],dtype=int).to(device)*target_class
+        loss = F.nll_loss(preds, adv_target)
+        classifier.zero_grad()
+        loss.backward()
+        data_grad = inputs.grad.data
+        outputs = fgsm_attack(inputs, epsilon, data_grad)
+        preds_adv = classifier(outputs)
+        
+        pred_classes_adv = torch.argmax(preds_adv, dim=1) 
+        
+        
+        correct_adv += pred_classes_adv[pred_classes_adv==target_class].size()[0]
+        
+        #print(pred_classes)
+        #print(pred_classes_adv)
 
-            inputs = np.moveaxis(inputs.cpu().detach().numpy(),1,3)
-            outputs = np.moveaxis(outputs.cpu().detach().numpy(),1,3)
-            psnrs.append(psnr(inputs,outputs,data_range=2))
-            ssims.append(ssim(inputs,outputs,win_size=9, multichannel=True))
-            
-        acc_adv = float(correct_adv)/float(total)
-        acc = float(correct)/float(total)
-        psnr_mean = np.mean(psnrs)
-        ssim_mean = np.mean(ssims)
-        print("Final adversarial accuracy: " + str(acc_adv))
-        print("Fraction classified pre-attack: " + str(acc))
-        print("FGSM PSNR: " + str(psnr_mean))
-        print("FGSM SSIM: " + str(ssim_mean))
+        inputs = np.moveaxis(inputs.cpu().detach().numpy(),1,3)
+        outputs = np.moveaxis(outputs.cpu().detach().numpy(),1,3)
+        psnrs.append(psnr(inputs,outputs,data_range=2))
+        ssims.append(ssim(inputs,outputs,win_size=9, multichannel=True))
+
+        if i == 0:
+            torch.save(torch.from_numpy(outputs).cpu(),"fgsm_images_" + str(epsilon) + ".tar")
+        
+    acc_adv = float(correct_adv)/float(total)
+    acc = float(correct)/float(total)
+    psnr_mean = np.mean(psnrs)
+    ssim_mean = np.mean(ssims)
+    print("Final adversarial accuracy: " + str(acc_adv))
+    print("Fraction classified pre-attack: " + str(acc))
+    print("FGSM PSNR: " + str(psnr_mean))
+    print("FGSM SSIM: " + str(ssim_mean))
 
 if __name__ == '__main__':
     
