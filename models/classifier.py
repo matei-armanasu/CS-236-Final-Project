@@ -74,6 +74,6 @@ def pretrained_efficient_net():
 
 def pretrained_base_classifier():
     model_arch = BaseClassifier()
-    model_arch.load_state_dict(torch.load('../models/BaseClassifier-50-50-FINAL.tar'))
+    model_arch.load_state_dict(torch.load('../extra/BaseClassifier-50-50-FINAL.tar'))
     
     return model_arch
