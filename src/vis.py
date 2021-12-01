@@ -72,7 +72,7 @@ def vis(checkpoint):
             plt.axis("off")
             plt.title("Generated Images")
             plt.imshow(np.transpose(vutils.make_grid(outputs.detach(), padding=1, normalize=True).cpu(),(1,2,0)))
-            plt.savefig('generated'+str(i)+'.png')
+            plt.savefig('../visuals-29-Nov/generated'+str(i)+'.png')
 
 
             preds_adv = classifier(outputs)
@@ -98,28 +98,23 @@ def vis(checkpoint):
         # print("Generator PSNR: " + str(psnr_mean))
         # print("Generator SSIM: " + str(ssim_mean))
 
-               
-            
-            #
-
-            # print(outputs.shape)
-            # outputs = interval_mapping(outputs, 0.0, 1.0, 0, 255)
-    #     with torch.no_grad():
-    #         fake = generator(fixed_noise).detach().cpu()
-
-        
-
-    #     print("epoch done")
-
-    # plt.figure(figsize=(10,5))
-    # plt.title("Generator and Discriminator Loss During Training")
-    # plt.plot(G_losses,label="G")
-    # plt.plot(D_losses,label="D")
-    # plt.xlabel("iterations")
-    # plt.ylabel("Loss")
-    # plt.legend()
-    # plt.show()
-    # plt.savefig('loss'+'.png')
 
 
-vis(checkpoint="../extra/2021-11-26/ResidualGenerator-50-50-FINAL.tar")
+#vis(checkpoint="../extra/2021-11-29/ResidualGenerator-50-50-FINAL.tar")
+outputs = torch.load("../extra/fgsm_images_0.05.tar")
+cnt = 0
+plt.figure(figsize=(8,10))
+for i in range(len(outputs[0])):
+    cnt += 1
+    plt.subplot(8,8,cnt)
+    # if j == 0:
+    #     plt.ylabel("Eps: {}".format(epsilons[i]), fontsize=14)
+
+    # print(outputs[i].shape)
+    # orig,adv,ex = outputs[i]
+    # plt.title("{} -> {}".format(orig, adv))
+    plt.axis("off")
+    plt.imshow(vutils.make_grid(outputs[i], padding=1, normalize=True).cpu())
+
+
+plt.savefig('../fgsm-visuals/generated_0.05'+'.png')
