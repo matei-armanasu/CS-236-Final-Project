@@ -9,3 +9,7 @@ Given the wide adoption of deep learning models, it is important to be aware on 
 * Generator outputs an image I' of the same size, perturbed such that C believes it to be from a target class t.
 * Generator architecture uses a series of convolutional layers, and an optional residual mode in which the input image is added to the output to create a ResNet-style block network.
 * Training process is white-box, relies on access to classifier for backpropagation.
+
+## Results - Visualizations
+
+![Generated Images](https://github.com/matei-armanasu/CS-236-Final-Project/blob/main/visuals-29-Nov/generated115.png)
